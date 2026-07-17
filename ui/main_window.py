@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ui.dialogs.new_tournament_dialog import NewTournamentDialog
 
 
 class MainWindow(QMainWindow):
@@ -45,6 +46,10 @@ class MainWindow(QMainWindow):
         self.new_tournament_button = QPushButton("New Tournament")
         self.open_tournament_button = QPushButton("Open Tournament")
 
+        self.new_tournament_button.clicked.connect(
+            self.open_new_tournament_dialog
+        )
+
         self.new_tournament_button.setFixedWidth(220)
         self.open_tournament_button.setFixedWidth(220)
 
@@ -61,3 +66,7 @@ class MainWindow(QMainWindow):
         # Status bar
         self.setStatusBar(QStatusBar())
         self.statusBar().showMessage("Ready")
+
+    def open_new_tournament_dialog(self):
+        dialog = NewTournamentDialog(self)
+        dialog.exec()
