@@ -69,4 +69,9 @@ class MainWindow(QMainWindow):
 
     def open_new_tournament_dialog(self):
         dialog = NewTournamentDialog(self)
-        dialog.exec()
+
+        if dialog.exec():
+            tournament_data = dialog.get_tournament_data()
+
+            print("Tournament Data")
+            print(tournament_data)

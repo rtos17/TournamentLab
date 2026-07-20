@@ -63,3 +63,12 @@ class NewTournamentDialog(QDialog):
         layout.addWidget(buttons)
 
         self.setLayout(layout)
+
+    def get_tournament_data(self):
+        """Return the data entered by the user."""
+
+        return {
+            "name": self.name_edit.text().strip(),
+            "system": self.system_combo.currentText(),
+            "participants": self.participants_spin.value(),
+        }
