@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from ui.dialogs.new_tournament_dialog import NewTournamentDialog
+from services.tournament_service import TournamentService
 
 
 class MainWindow(QMainWindow):
@@ -73,5 +74,8 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             tournament_data = dialog.get_tournament_data()
 
-            print("Tournament Data")
-            print(tournament_data)
+            tournament = TournamentService.create_tournament(
+                tournament_data
+            )
+
+            print(tournament)
