@@ -33,6 +33,8 @@ class TournamentView(QWidget):
 
         layout.addStretch()
 
+        self.refresh()
+
     def _create_header(self, layout):
         self.title_label = QLabel()
         self.title_label.setAlignment(Qt.AlignCenter)
@@ -90,18 +92,16 @@ class TournamentView(QWidget):
 
         layout.addWidget(group)
 
-        self.refresh_participants()
-
     def refresh_participants(self):
         self.participant_list.clear()
 
         if not self.tournament.participants:
             self.participant_list.addItem("(No participants yet)")
-        else:
-            for participant in self.tournament.participants:
-                self.participant_list.addItem(participant.name)
+            return
+        
+        for participant in self.tournament.participants:
+            self.participant_list.addItem(participant.name)
 
-        self.refresh_header()
 
     def _create_rounds_section(self, layout):
         group = QGroupBox("Rounds")
@@ -124,3 +124,7 @@ class TournamentView(QWidget):
         )
 
         layout.addWidget(group)
+
+    def refresh(self):
+        self.refresh_header()
+        self.refresh_participants()

@@ -70,4 +70,4 @@ class MainWindow(QMainWindow):
                 participant_data["name"],
                 participant_data["seed"],
             )
-            self.tournament_view.refresh_participants()
+            self.tournament_view.refresh()
