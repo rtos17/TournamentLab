@@ -1,72 +1,48 @@
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QLabel,
     QMainWindow,
-    QPushButton,
     QStatusBar,
-    QToolBar,
-    QVBoxLayout,
-    QWidget,
+    QToolBar
 )
+from ui.views.welcome_view import WelcomeView
+from ui.views.tournament_view import TournamentView
 from ui.dialogs.new_tournament_dialog import NewTournamentDialog
 from services.tournament_service import TournamentService
+from ui.dialogs.add_participant_dialog import AddParticipantDialog
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.tournament_service = TournamentService()
+        self.current_tournament = None
         self.setWindowTitle("Tournament Lab — v0.1.0-alpha")
         self.resize(1000, 700)
 
         self._create_ui()
 
     def _create_ui(self):
-        """Create the main window interface."""
+        self.welcome_view = WelcomeView()
 
-        # Central widget
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-
-        # Main layout
-        layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignCenter)
-        layout.setSpacing(20)
-
-        central_widget.setLayout(layout)
-
-        # Title
-        title = QLabel("🏆 Tournament Lab")
-        title.setAlignment(Qt.AlignCenter)
-
-        # Subtitle
-        subtitle = QLabel("A laboratory for competitive systems")
-        subtitle.setAlignment(Qt.AlignCenter)
-
-        # Buttons
-        self.new_tournament_button = QPushButton("New Tournament")
-        self.open_tournament_button = QPushButton("Open Tournament")
-
-        self.new_tournament_button.clicked.connect(
+        self.welcome_view.new_tournament_requested.connect(
             self.open_new_tournament_dialog
         )
 
-        self.new_tournament_button.setFixedWidth(220)
-        self.open_tournament_button.setFixedWidth(220)
+        self.setCentralWidget(self.welcome_view)
 
-        # Add widgets
-        layout.addWidget(title)
-        layout.addWidget(subtitle)
-        layout.addSpacing(20)
-        layout.addWidget(self.new_tournament_button, alignment=Qt.AlignCenter)
-        layout.addWidget(self.open_tournament_button, alignment=Qt.AlignCenter)
-
-        # Toolbar
         self.addToolBar(QToolBar("Main"))
 
-        # Status bar
         self.setStatusBar(QStatusBar())
         self.statusBar().showMessage("Ready")
+
+    def show_tournament_view(self):
+        self.tournament_view = TournamentView(self.current_tournament)
+
+        self.tournament_view.add_participant_requested.connect(
+            self.open_add_participant_dialog
+        )
+
+        self.setCentralWidget(self.tournament_view)
 
     def open_new_tournament_dialog(self):
         dialog = NewTournamentDialog(self)
@@ -74,8 +50,24 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             tournament_data = dialog.get_tournament_data()
 
-            tournament = TournamentService.create_tournament(
-                tournament_data
+            self.current_tournament = self.tournament_service.create_tournament(
+                tournament_data["name"],
+                tournament_data["system"],
+                tournament_data["participant_count"],
             )
 
-            print(tournament)
+            self.show_tournament_view()
+
+
+    def open_add_participant_dialog(self):
+        dialog = AddParticipantDialog(self)
+
+        if dialog.exec():
+            participant_data = dialog.get_participant_data()
+
+            self.tournament_service.add_participant(
+                self.current_tournament,
+                participant_data["name"],
+                participant_data["seed"],
+            )
+            self.tournament_view.refresh_participants()

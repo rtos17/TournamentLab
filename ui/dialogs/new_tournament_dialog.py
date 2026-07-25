@@ -70,5 +70,5 @@ class NewTournamentDialog(QDialog):
         return {
             "name": self.name_edit.text().strip(),
             "system": self.system_combo.currentText(),
-            "participants": self.participants_spin.value(),
+            "participant_count": self.participants_spin.value(),
         }
