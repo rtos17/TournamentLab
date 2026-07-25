@@ -28,22 +28,38 @@ class TournamentView(QWidget):
 
         self._create_header(layout)
         self._create_participants_section(layout)
+        self._create_rounds_section(layout)
+        self._create_standings_section(layout)
 
         layout.addStretch()
 
     def _create_header(self, layout):
-        title = QLabel(self.tournament.name)
-        title.setAlignment(Qt.AlignCenter)
+        self.title_label = QLabel()
+        self.title_label.setAlignment(Qt.AlignCenter)
 
-        system = QLabel(f"System: {self.tournament.system}")
+        self.system_label = QLabel()
 
-        participant_count = QLabel(
-            f"Expected participants: {self.tournament.participant_count}"
+        self.participant_count_label = QLabel()
+
+        layout.addWidget(self.title_label)
+        layout.addWidget(self.system_label)
+        layout.addWidget(self.participant_count_label)
+
+        self.refresh_header()
+
+    def refresh_header(self):
+        self.title_label.setText(self.tournament.name)
+
+        self.system_label.setText(
+            f"System: {self.tournament.system}"
         )
 
-        layout.addWidget(title)
-        layout.addWidget(system)
-        layout.addWidget(participant_count)
+        current = len(self.tournament.participants)
+        expected = self.tournament.participant_count
+
+        self.participant_count_label.setText(
+            f"Participants: {current} / {expected}"
+        )
 
     def _create_participants_section(self, layout):
         group = QGroupBox("Participants")
@@ -81,7 +97,30 @@ class TournamentView(QWidget):
 
         if not self.tournament.participants:
             self.participant_list.addItem("(No participants yet)")
-            return
+        else:
+            for participant in self.tournament.participants:
+                self.participant_list.addItem(participant.name)
 
-        for participant in self.tournament.participants:
-            self.participant_list.addItem(participant.name)
+        self.refresh_header()
+
+    def _create_rounds_section(self, layout):
+        group = QGroupBox("Rounds")
+
+        group_layout = QVBoxLayout(group)
+
+        group_layout.addWidget(
+            QLabel("No rounds generated yet.")
+        )
+
+        layout.addWidget(group)
+
+    def _create_standings_section(self, layout):
+        group = QGroupBox("Standings")
+
+        group_layout = QVBoxLayout(group)
+
+        group_layout.addWidget(
+            QLabel("No standings available.")
+        )
+
+        layout.addWidget(group)
