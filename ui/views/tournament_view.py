@@ -26,22 +26,31 @@ class TournamentView(QWidget):
     def _create_ui(self):
         layout = QVBoxLayout(self)
 
-        self._create_header(layout)
-        self._create_participants_section(layout)
-        self._create_rounds_section(layout)
-        self._create_standings_section(layout)
+        self._build_header(layout)
+        self._build_participants(layout)
+        self._build_rounds(layout)
+        self._build_standings(layout)
 
         layout.addStretch()
 
         self.refresh()
 
-    def _create_header(self, layout):
+    def _build_header(self, layout):
         self.title_label = QLabel()
         self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setStyleSheet(
+            "font-size: 22px; font-weight: bold;"
+        )
 
         self.system_label = QLabel()
+        self.system_label.setStyleSheet(
+            "color: gray;"
+        )
 
         self.participant_count_label = QLabel()
+        self.participant_count_label.setStyleSheet(
+            "font-weight: bold;"
+        )
 
         layout.addWidget(self.title_label)
         layout.addWidget(self.system_label)
@@ -63,7 +72,7 @@ class TournamentView(QWidget):
             f"Participants: {current} / {expected}"
         )
 
-    def _create_participants_section(self, layout):
+    def _build_participants(self, layout):
         group = QGroupBox("Participants")
 
         group_layout = QVBoxLayout(group)
@@ -103,7 +112,7 @@ class TournamentView(QWidget):
             self.participant_list.addItem(participant.name)
 
 
-    def _create_rounds_section(self, layout):
+    def _build_rounds(self, layout):
         group = QGroupBox("Rounds")
 
         group_layout = QVBoxLayout(group)
@@ -114,7 +123,7 @@ class TournamentView(QWidget):
 
         layout.addWidget(group)
 
-    def _create_standings_section(self, layout):
+    def _build_standings(self, layout):
         group = QGroupBox("Standings")
 
         group_layout = QVBoxLayout(group)
