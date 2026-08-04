@@ -41,6 +41,9 @@ class MainWindow(QMainWindow):
         self.tournament_view.add_participant_requested.connect(
             self.open_add_participant_dialog
         )
+        self.tournament_view.edit_participant_requested.connect(
+            self.on_edit_participant
+        )
 
         self.setCentralWidget(self.tournament_view)
 
@@ -70,4 +73,20 @@ class MainWindow(QMainWindow):
                 participant_data["name"],
                 participant_data["seed"],
             )
+            self.tournament_view.refresh()
+
+    def on_edit_participant(self, participant):
+        dialog = AddParticipantDialog(
+            self,
+            participant=participant
+        )
+
+        if dialog.exec():
+            data = dialog.get_participant_data()
+
+            self.tournament_service.update_participant(
+                participant,
+                data["name"]
+            )
+
             self.tournament_view.refresh()

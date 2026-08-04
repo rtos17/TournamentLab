@@ -8,14 +8,22 @@ from PySide6.QtWidgets import (
 
 
 class AddParticipantDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, participant=None):
         super().__init__(parent)
+
+        self.participant = participant
 
         self.setWindowTitle("Add Participant")
 
         layout = QFormLayout(self)
 
         self.name_edit = QLineEdit()
+
+        if self.participant is not None:
+            self.setWindowTitle("Edit Participant")
+            self.name_edit.setText(self.participant.name)
+        else:
+            self.setWindowTitle("Add Participant")
 
         self.seed_spin = QSpinBox()
         self.seed_spin.setMinimum(0)

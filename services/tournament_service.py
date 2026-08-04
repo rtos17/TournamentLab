@@ -27,3 +27,11 @@ class TournamentService:
 
     def get_participants(self, tournament: Tournament):
         return list(tournament.participants)
+
+    def update_participant(self, participant, name):
+        """
+        Update an existing participant.
+        """
+        participant.name = name.strip()
+
+        return participant
