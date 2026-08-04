@@ -35,3 +35,13 @@ class TournamentService:
         participant.name = name.strip()
 
         return participant
+
+    def remove_participant(self, tournament, participant):
+        """
+        Remove a participant from a tournament.
+        """
+        if participant in tournament.participants:
+            tournament.participants.remove(participant)
+            return True
+
+        return False

@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import (
     QMainWindow,
     QStatusBar,
-    QToolBar
+    QToolBar,
+    QMessageBox
 )
 from ui.views.welcome_view import WelcomeView
 from ui.views.tournament_view import TournamentView
@@ -43,6 +44,9 @@ class MainWindow(QMainWindow):
         )
         self.tournament_view.edit_participant_requested.connect(
             self.on_edit_participant
+        )
+        self.tournament_view.remove_participant_requested.connect(
+            self.on_remove_participant
         )
 
         self.setCentralWidget(self.tournament_view)
@@ -90,3 +94,22 @@ class MainWindow(QMainWindow):
             )
 
             self.tournament_view.refresh()
+
+    def on_remove_participant(self, participant):
+        reply = QMessageBox.question(
+            self,
+            "Remove Participant",
+            f"Are you sure you want to remove '{participant.name}'?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply != QMessageBox.Yes:
+            return
+
+        self.tournament_service.remove_participant(
+            self.current_tournament,
+            participant
+        )
+
+        self.tournament_view.refresh()

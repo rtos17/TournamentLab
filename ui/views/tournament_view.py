@@ -16,6 +16,7 @@ class TournamentView(QWidget):
     """Workspace for an opened tournament."""
     add_participant_requested = Signal()
     edit_participant_requested = Signal(object)
+    remove_participant_requested = Signal(object)
 
     def __init__(self, tournament: Tournament, parent=None):
         super().__init__(parent)
@@ -91,12 +92,18 @@ class TournamentView(QWidget):
         self.add_button = QPushButton("Add Participant")
         self.edit_button = QPushButton("Edit Participant")
         self.edit_button.setEnabled(False)
-        self.remove_button = QPushButton("Remove")
+        self.remove_button = QPushButton("Remove Participant")
+        self.remove_button.setEnabled(False)
         self.import_button = QPushButton("Import")
 
-        self.add_button.clicked.connect(self.add_participant_requested.emit)
+        self.add_button.clicked.connect(
+            self.add_participant_requested.emit
+        )
         self.edit_button.clicked.connect(
             self._emit_edit_participant
+        )
+        self.remove_button.clicked.connect(
+            self._emit_remove_participant
         )
 
         button_layout.addWidget(self.add_button)
@@ -147,7 +154,9 @@ class TournamentView(QWidget):
 
     def _on_participant_selected(self):
         has_selection = len(self.participant_list.selectedItems()) > 0
+
         self.edit_button.setEnabled(has_selection)
+        self.remove_button.setEnabled(has_selection)
 
     def _emit_edit_participant(self):
         selected = self.participant_list.currentRow()
@@ -157,3 +166,13 @@ class TournamentView(QWidget):
 
         participant = self.tournament.participants[selected]
         self.edit_participant_requested.emit(participant)
+
+    def _emit_remove_participant(self):
+        selected = self.participant_list.currentRow()
+
+        if selected < 0:
+            return
+
+        participant = self.tournament.participants[selected]
+
+        self.remove_participant_requested.emit(participant)
