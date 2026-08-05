@@ -11,6 +11,7 @@ from ui.dialogs.new_tournament_dialog import NewTournamentDialog
 from services.tournament_service import TournamentService
 from ui.dialogs.add_participant_dialog import AddParticipantDialog
 from services.import_service import ImportService
+from ui.dialogs.result_dialog import ResultDialog
 
 
 class MainWindow(QMainWindow):
@@ -59,6 +60,12 @@ class MainWindow(QMainWindow):
         )
         self.tournament_view.import_csv_requested.connect(
             self.on_import_csv
+        )
+        self.tournament_view.generate_round_requested.connect(
+            self.generate_round
+        )
+        self.tournament_view.result_requested.connect(
+            self.enter_result
         )
 
         self.setCentralWidget(self.tournament_view)
@@ -178,3 +185,23 @@ class MainWindow(QMainWindow):
                 "Import Failed",
                 str(e)
             )
+
+    def generate_round(self):
+        if self.current_tournament is None:
+            return
+
+        self.tournament_service.generate_round(
+            self.current_tournament
+        )
+
+        self.tournament_view.refresh()
+
+    def enter_result(self, match):
+
+        dialog = ResultDialog(match, self)
+
+        if dialog.exec():
+
+            score1, score2 = dialog.get_result()
+
+            print(score1, score2)

@@ -10,6 +10,9 @@ from PySide6.QtWidgets import (
 )
 
 from models.tournament import Tournament
+from ui.widgets.tournament_header import TournamentHeader
+from ui.widgets.participants_panel import ParticipantsPanel
+from ui.widgets.rounds_panel import RoundsPanel
 
 
 class TournamentView(QWidget):
@@ -18,6 +21,8 @@ class TournamentView(QWidget):
     edit_participant_requested = Signal(object)
     remove_participant_requested = Signal(object)
     import_csv_requested = Signal()
+    generate_round_requested = Signal()
+    result_requested = Signal(object)
 
     def __init__(self, tournament: Tournament, parent=None):
         super().__init__(parent)
@@ -39,107 +44,42 @@ class TournamentView(QWidget):
         self.refresh()
 
     def _build_header(self, layout):
-        self.title_label = QLabel()
-        self.title_label.setAlignment(Qt.AlignCenter)
-        self.title_label.setStyleSheet(
-            "font-size: 22px; font-weight: bold;"
-        )
-
-        self.system_label = QLabel()
-        self.system_label.setStyleSheet(
-            "color: gray;"
-        )
-
-        self.participant_count_label = QLabel()
-        self.participant_count_label.setStyleSheet(
-            "font-weight: bold;"
-        )
-
-        layout.addWidget(self.title_label)
-        layout.addWidget(self.system_label)
-        layout.addWidget(self.participant_count_label)
-
-        self.refresh_header()
-
-    def refresh_header(self):
-        self.title_label.setText(self.tournament.name)
-
-        self.system_label.setText(
-            f"System: {self.tournament.system}"
-        )
-
-        current = len(self.tournament.participants)
-        expected = self.tournament.participant_count
-
-        self.participant_count_label.setText(
-            f"Participants: {current} / {expected}"
-        )
+        self.header = TournamentHeader(self.tournament)
+        layout.addWidget(self.header)
 
     def _build_participants(self, layout):
-        group = QGroupBox("Participants")
+        self.participants_panel = ParticipantsPanel(self.tournament)
 
-        group_layout = QVBoxLayout(group)
-
-        self.participant_list = QListWidget()
-
-        self.participant_list.itemSelectionChanged.connect(
-            self._on_participant_selected
+        self.participants_panel.add_participant_requested.connect(
+            self.add_participant_requested
         )
 
-        group_layout.addWidget(self.participant_list)
-
-        button_layout = QHBoxLayout()
-
-        self.add_button = QPushButton("Add Participant")
-        self.edit_button = QPushButton("Edit Participant")
-        self.edit_button.setEnabled(False)
-        self.remove_button = QPushButton("Remove Participant")
-        self.remove_button.setEnabled(False)
-        self.import_csv_button = QPushButton("Import CSV")
-
-        self.add_button.clicked.connect(
-            self.add_participant_requested.emit
-        )
-        self.edit_button.clicked.connect(
-            self._emit_edit_participant
-        )
-        self.remove_button.clicked.connect(
-            self._emit_remove_participant
-        )
-        self.import_csv_button.clicked.connect(
-            self.import_csv_requested.emit
+        self.participants_panel.edit_participant_requested.connect(
+            self.edit_participant_requested
         )
 
-        button_layout.addWidget(self.add_button)
-        button_layout.addWidget(self.edit_button)
-        button_layout.addWidget(self.remove_button)
-        button_layout.addWidget(self.import_csv_button)
+        self.participants_panel.remove_participant_requested.connect(
+            self.remove_participant_requested
+        )
 
-        group_layout.addLayout(button_layout)
+        self.participants_panel.import_csv_requested.connect(
+            self.import_csv_requested
+        )
 
-        layout.addWidget(group)
+        self.participants_panel.generate_round_requested.connect(
+            self.generate_round_requested
+        )
 
-    def refresh_participants(self):
-        self.participant_list.clear()
-
-        if not self.tournament.participants:
-            self.participant_list.addItem("(No participants yet)")
-            return
-        
-        for participant in self.tournament.participants:
-            self.participant_list.addItem(participant.name)
-
+        layout.addWidget(self.participants_panel)
 
     def _build_rounds(self, layout):
-        group = QGroupBox("Rounds")
+        self.rounds_panel = RoundsPanel(self.tournament)
 
-        group_layout = QVBoxLayout(group)
-
-        group_layout.addWidget(
-            QLabel("No rounds generated yet.")
+        self.rounds_panel.result_requested.connect(
+            self.result_requested.emit
         )
 
-        layout.addWidget(group)
+        layout.addWidget(self.rounds_panel)
 
     def _build_standings(self, layout):
         group = QGroupBox("Standings")
@@ -153,30 +93,6 @@ class TournamentView(QWidget):
         layout.addWidget(group)
 
     def refresh(self):
-        self.refresh_header()
-        self.refresh_participants()
-
-    def _on_participant_selected(self):
-        has_selection = len(self.participant_list.selectedItems()) > 0
-
-        self.edit_button.setEnabled(has_selection)
-        self.remove_button.setEnabled(has_selection)
-
-    def _emit_edit_participant(self):
-        selected = self.participant_list.currentRow()
-
-        if selected < 0:
-            return
-
-        participant = self.tournament.participants[selected]
-        self.edit_participant_requested.emit(participant)
-
-    def _emit_remove_participant(self):
-        selected = self.participant_list.currentRow()
-
-        if selected < 0:
-            return
-
-        participant = self.tournament.participants[selected]
-
-        self.remove_participant_requested.emit(participant)
+        self.header.refresh()
+        self.participants_panel.refresh()
+        self.rounds_panel.refresh()

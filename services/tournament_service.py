@@ -1,9 +1,13 @@
 from datetime import datetime
 from models.tournament import Tournament
 from models.participant import Participant
+from pairings.sequential_pairing import SequentialPairingEngine
 
 
 class TournamentService:
+
+    def __init__(self):
+        self.pairing_engine = SequentialPairingEngine()
 
     def create_tournament(self, name: str, system: str, participant_count: int) -> Tournament:
         return Tournament(
@@ -64,3 +68,10 @@ class TournamentService:
             )
 
             next_seed += 1
+
+    def generate_round(self, tournament):
+        round_ = self.pairing_engine.generate_round(tournament)
+
+        tournament.add_round(round_)
+
+        return round_
