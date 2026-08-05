@@ -28,11 +28,12 @@ class TournamentService:
     def get_participants(self, tournament: Tournament):
         return list(tournament.participants)
 
-    def update_participant(self, participant, name):
+    def update_participant(self, participant, name, seed):
         """
         Update an existing participant.
         """
         participant.name = name.strip()
+        participant.seed = seed
 
         return participant
 
@@ -45,3 +46,21 @@ class TournamentService:
             return True
 
         return False
+
+    def import_participants(self, tournament, participants):
+        """
+        Import multiple participants into a tournament.
+        Missing seeds are assigned automatically.
+        """
+        next_seed = len(tournament.participants) + 1
+
+        for participant_data in participants:
+            seed = participant_data.get("seed", next_seed)
+
+            self.add_participant(
+                tournament,
+                participant_data["name"],
+                seed,
+            )
+
+            next_seed += 1

@@ -13,21 +13,22 @@ class AddParticipantDialog(QDialog):
 
         self.participant = participant
 
-        self.setWindowTitle("Add Participant")
-
         layout = QFormLayout(self)
 
         self.name_edit = QLineEdit()
 
-        if self.participant is not None:
-            self.setWindowTitle("Edit Participant")
-            self.name_edit.setText(self.participant.name)
-        else:
-            self.setWindowTitle("Add Participant")
-
         self.seed_spin = QSpinBox()
         self.seed_spin.setMinimum(0)
         self.seed_spin.setMaximum(9999)
+
+        if self.participant is not None:
+            self.setWindowTitle("Edit Participant")
+
+            self.name_edit.setText(self.participant.name)
+            self.seed_spin.setValue(self.participant.seed)
+
+        else:
+            self.setWindowTitle("Add Participant")
 
         layout.addRow("Name", self.name_edit)
         layout.addRow("Seed", self.seed_spin)

@@ -17,6 +17,7 @@ class TournamentView(QWidget):
     add_participant_requested = Signal()
     edit_participant_requested = Signal(object)
     remove_participant_requested = Signal(object)
+    import_csv_requested = Signal()
 
     def __init__(self, tournament: Tournament, parent=None):
         super().__init__(parent)
@@ -94,7 +95,7 @@ class TournamentView(QWidget):
         self.edit_button.setEnabled(False)
         self.remove_button = QPushButton("Remove Participant")
         self.remove_button.setEnabled(False)
-        self.import_button = QPushButton("Import")
+        self.import_csv_button = QPushButton("Import CSV")
 
         self.add_button.clicked.connect(
             self.add_participant_requested.emit
@@ -105,11 +106,14 @@ class TournamentView(QWidget):
         self.remove_button.clicked.connect(
             self._emit_remove_participant
         )
+        self.import_csv_button.clicked.connect(
+            self.import_csv_requested.emit
+        )
 
         button_layout.addWidget(self.add_button)
         button_layout.addWidget(self.edit_button)
         button_layout.addWidget(self.remove_button)
-        button_layout.addWidget(self.import_button)
+        button_layout.addWidget(self.import_csv_button)
 
         group_layout.addLayout(button_layout)
 

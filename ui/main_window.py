@@ -2,24 +2,33 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QStatusBar,
     QToolBar,
-    QMessageBox
+    QMessageBox,
+    QFileDialog
 )
 from ui.views.welcome_view import WelcomeView
 from ui.views.tournament_view import TournamentView
 from ui.dialogs.new_tournament_dialog import NewTournamentDialog
 from services.tournament_service import TournamentService
 from ui.dialogs.add_participant_dialog import AddParticipantDialog
+from services.import_service import ImportService
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # Services
         self.tournament_service = TournamentService()
+        self.import_service = ImportService()
+
+        # Application state
         self.current_tournament = None
+
+        # Window
         self.setWindowTitle("Tournament Lab — v0.1.0-alpha")
         self.resize(1000, 700)
 
+        # UI
         self._create_ui()
 
     def _create_ui(self):
@@ -48,6 +57,9 @@ class MainWindow(QMainWindow):
         self.tournament_view.remove_participant_requested.connect(
             self.on_remove_participant
         )
+        self.tournament_view.import_csv_requested.connect(
+            self.on_import_csv
+        )
 
         self.setCentralWidget(self.tournament_view)
 
@@ -65,35 +77,54 @@ class MainWindow(QMainWindow):
 
             self.show_tournament_view()
 
+    def _refresh_tournament_view(self):
+        """Refresh the current tournament workspace."""
+        self.tournament_view.refresh()
 
-    def open_add_participant_dialog(self):
-        dialog = AddParticipantDialog(self)
 
-        if dialog.exec():
-            participant_data = dialog.get_participant_data()
+    def _open_participant_dialog(self, participant=None):
+        """
+        Open the participant dialog.
 
-            self.tournament_service.add_participant(
-                self.current_tournament,
-                participant_data["name"],
-                participant_data["seed"],
-            )
-            self.tournament_view.refresh()
-
-    def on_edit_participant(self, participant):
+        Returns the participant data dictionary or None if cancelled.
+        """
         dialog = AddParticipantDialog(
             self,
             participant=participant
         )
 
         if dialog.exec():
-            data = dialog.get_participant_data()
+            return dialog.get_participant_data()
 
-            self.tournament_service.update_participant(
-                participant,
-                data["name"]
-            )
+        return None
 
-            self.tournament_view.refresh()
+    def open_add_participant_dialog(self):
+        participant_data = self._open_participant_dialog()
+
+        if participant_data is None:
+            return
+
+        self.tournament_service.add_participant(
+            self.current_tournament,
+            participant_data["name"],
+            participant_data["seed"],
+        )
+
+        self._refresh_tournament_view()
+
+    def on_edit_participant(self, participant):
+        participant_data = self._open_participant_dialog(participant)
+
+        if participant_data is None:
+            return
+
+        self.tournament_service.update_participant(
+            participant,
+            participant_data["name"],
+            participant_data["seed"],
+        )
+
+        self._refresh_tournament_view()
 
     def on_remove_participant(self, participant):
         reply = QMessageBox.question(
@@ -112,4 +143,38 @@ class MainWindow(QMainWindow):
             participant
         )
 
-        self.tournament_view.refresh()
+        self._refresh_tournament_view()
+
+    def on_import_csv(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Import Participants",
+            "",
+            "CSV Files (*.csv)"
+        )
+
+        if not file_path:
+            return
+
+        try:
+            participants = self.import_service.import_participants(file_path)
+
+            self.tournament_service.import_participants(
+                self.current_tournament,
+                participants
+            )
+
+            self._refresh_tournament_view()
+
+            QMessageBox.information(
+                self,
+                "Import Complete",
+                f"Imported {len(participants)} participants."
+            )
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Import Failed",
+                str(e)
+            )
