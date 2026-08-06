@@ -204,4 +204,6 @@ class MainWindow(QMainWindow):
 
             score1, score2 = dialog.get_result()
 
-            print(score1, score2)
+            match.set_result(score1, score2)
+
+            self.tournament_view.refresh()

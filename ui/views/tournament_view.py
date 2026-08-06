@@ -13,6 +13,7 @@ from models.tournament import Tournament
 from ui.widgets.tournament_header import TournamentHeader
 from ui.widgets.participants_panel import ParticipantsPanel
 from ui.widgets.rounds_panel import RoundsPanel
+from ui.widgets.standings_panel import StandingsPanel
 
 
 class TournamentView(QWidget):
@@ -82,17 +83,16 @@ class TournamentView(QWidget):
         layout.addWidget(self.rounds_panel)
 
     def _build_standings(self, layout):
-        group = QGroupBox("Standings")
 
-        group_layout = QVBoxLayout(group)
-
-        group_layout.addWidget(
-            QLabel("No standings available.")
+        self.standings_panel = StandingsPanel(
+            self.tournament
         )
 
-        layout.addWidget(group)
+        layout.addWidget(self.standings_panel)
 
     def refresh(self):
+
         self.header.refresh()
         self.participants_panel.refresh()
         self.rounds_panel.refresh()
+        self.standings_panel.refresh()

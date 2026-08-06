@@ -7,7 +7,7 @@ class StandingsCalculator:
     def calculate(tournament):
 
         standings = {
-            participant: Standing(participant)
+            participant.id: Standing(participant)
             for participant in tournament.participants
         }
 
@@ -18,7 +18,7 @@ class StandingsCalculator:
                 if not match.finished:
                     continue
 
-                p1 = standings[match.participant1]
+                p1 = standings[match.participant1.id]
 
                 p1.played += 1
 
@@ -28,7 +28,7 @@ class StandingsCalculator:
                     p1.byes += 1
                     continue
 
-                p2 = standings[match.participant2]
+                p2 = standings[match.participant2.id]
 
                 p2.played += 1
 
