@@ -17,10 +17,13 @@ class Match:
         self.score2 = None
 
         self.winner = None
+        self.is_finished = False
 
     def set_result(self, score1, score2):
         self.score1 = score1
         self.score2 = score2
+
+        self.is_finished = True
 
         if self.is_bye:
             self.winner = self.participant1
@@ -28,14 +31,32 @@ class Match:
 
         if score1 > score2:
             self.winner = self.participant1
+
         elif score2 > score1:
             self.winner = self.participant2
+
         else:
             self.winner = None
 
+    def clear_result(self):
+        self.score1 = None
+        self.score2 = None
+
+        self.winner = None
+
+        self.is_finished = False
+
     @property
     def finished(self):
-        return self.is_bye or self.winner is not None
+        return self.is_finished
+
+    @property
+    def is_draw(self):
+        return (
+            self.finished
+            and not self.is_bye
+            and self.winner is None
+        )
 
     @property
     def is_bye(self):
