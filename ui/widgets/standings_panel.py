@@ -8,19 +8,15 @@ from PySide6.QtWidgets import (
 
 from services.standings.standings_calculator import StandingsCalculator
 from models.tournament import Tournament
+from ui.widgets.base.panel import Panel
 
 
-class StandingsPanel(QWidget):
+class StandingsPanel(Panel):
 
     def __init__(self, tournament: Tournament, parent=None):
-        super().__init__(parent)
+        super().__init__("Standings", parent)
 
         self.tournament = tournament
-
-        layout = QVBoxLayout(self)
-
-        group = QGroupBox("Standings")
-        group_layout = QVBoxLayout(group)
 
         self.table = QTableWidget()
 
@@ -35,9 +31,7 @@ class StandingsPanel(QWidget):
             "L",
         ])
 
-        group_layout.addWidget(self.table)
-
-        layout.addWidget(group)
+        self.layout.addWidget(self.table)
 
         self.refresh()
 

@@ -9,9 +9,10 @@ from PySide6.QtWidgets import (
 )
 
 from models.tournament import Tournament
+from ui.widgets.base.panel import Panel
 
 
-class ParticipantsPanel(QWidget):
+class ParticipantsPanel(Panel):
 
     add_participant_requested = Signal()
     edit_participant_requested = Signal(object)
@@ -20,14 +21,9 @@ class ParticipantsPanel(QWidget):
     generate_round_requested = Signal()
 
     def __init__(self, tournament: Tournament, parent=None):
-        super().__init__(parent)
+        super().__init__("Participants", parent)
 
         self.tournament = tournament
-
-        layout = QVBoxLayout(self)
-
-        group = QGroupBox("Participants")
-        group_layout = QVBoxLayout(group)
 
         self.participant_list = QListWidget()
 
@@ -35,7 +31,7 @@ class ParticipantsPanel(QWidget):
             self._on_participant_selected
         )
 
-        group_layout.addWidget(self.participant_list)
+        self.layout.addWidget(self.participant_list)
 
         button_layout = QHBoxLayout()
 
@@ -74,9 +70,7 @@ class ParticipantsPanel(QWidget):
         button_layout.addWidget(self.import_csv_button)
         button_layout.addWidget(self.generate_round_button)
 
-        group_layout.addLayout(button_layout)
-
-        layout.addWidget(group)
+        self.layout.addLayout(button_layout)
 
         self.refresh()
 

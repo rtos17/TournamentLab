@@ -9,20 +9,16 @@ from PySide6.QtWidgets import (
 
 from models.tournament import Tournament
 from ui.widgets.match_widget import MatchWidget
+from ui.widgets.base.panel import Panel
 
 
-class RoundsPanel(QWidget):
+class RoundsPanel(Panel):
 
     result_requested = Signal(object)
     def __init__(self, tournament: Tournament, parent=None):
-        super().__init__(parent)
+        super().__init__("Rounds", parent)
 
         self.tournament = tournament
-
-        layout = QVBoxLayout(self)
-
-        group = QGroupBox("Rounds")
-        group_layout = QVBoxLayout(group)
 
         self.tree = QTreeWidget()
 
@@ -33,9 +29,7 @@ class RoundsPanel(QWidget):
         self.tree.setRootIsDecorated(True)
         self.tree.setAlternatingRowColors(True)
 
-        group_layout.addWidget(self.tree)
-
-        layout.addWidget(group)
+        self.layout.addWidget(self.tree)
 
         self.refresh()
 
